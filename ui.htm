@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <title>PLot</title>
+
+  <meta charset="UTF-8" />
+
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+</head>
+
+<body>
+
+  <h1>Welcome to PLot</h1>
+  <div 
+    x-data="{
+              'isLoading': true,
+              'cars': './cars'
+            }"
+    x-init="
+            fetch('./cars')
+                .then(r => r.json())
+                .then(r => {
+                    cars = JSON.stringify(r);
+                    isLoading = false;
+                })
+    ">
+
+    <p>State:</p>
+    <p x-text="cars"></p>
+  <div>
+ 
+  <div 
+    x-data="{
+              'isLoading': true,
+              'carName': '',
+              'carParticipants': [],
+              'domain': [],
+            }"
+    x-init="
+            fetch('./team')
+                .then(r => r.json())
+                .then(r => {
+                    domain = r;
+                    isLoading = false;
+                })
+    ">
+    <div>
+        <label>
+            Name:
+        </label>
+        <input type="text" x-model="carName"></input>
+    </div>
+    <div>
+        <label>
+            Participants:
+        </label>
+        <input type="text" disabled x-model="carParticipants.join(',')"></input>
+    </div>
+    <div>
+        <template x-for="alias in domain">
+            <button x-text="alias" @click="
+                carParticipants.push(alias)
+            "></button>
+        </template>
+    </div>
+
+    <button @click="
+        fetch('update', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'carName': carName,
+                'carParticipants': carParticipants,
+            })
+        }).then(r => {
+            window.location.replace(r.url);
+        })
+    ">submit</button>
+  </div>
+
+  <div>
+    <a href="solve">solve</a>
+  </div>
+  <div>
+    <a href="reset">reset</a>
+  </div>
+
+</body>
+
+</html>
