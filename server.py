@@ -1,8 +1,7 @@
 import flask
-
 import collections
-from ortools.linear_solver import pywraplp
 
+from ortools.linear_solver import pywraplp
 from json import JSONEncoder
 
 app = flask.Flask(__name__)
@@ -20,11 +19,22 @@ alias = [
     "ronak",
 ]
 
-count = 0
+chime = [
+    ''
+]
 
-carsObj = dict()
+count = 0
+discussions = dict()
 
 encoder = JSONEncoder()
+
+@app.route('/ui')
+def ui():
+    return flask.send_file("ui.htm")
+
+@app.route('/schedule-ui')
+def scheduleUi():
+    return flask.send_file("schedule-ui.htm")
 
 @app.route('/team')
 def team():
@@ -32,34 +42,39 @@ def team():
 
 @app.route('/reset')
 def reset():
-    global carsObj
-    carsObj = dict()
+    global count
+    global discussions
+
+    count = 0
+    discussions = dict()
+
     return flask.redirect("/ui")
 
-@app.route('/ui')
-def ui():
-    return flask.send_file("ui.htm")
 
 @app.route('/update', methods = ['POST'])
 def update():
     r = flask.request.get_json()
-    global carsObj
+
+    global discussions
     global count
+
     count += 1
-    carsObj[r["carName"] + str(count)] = r["carParticipants"]
+    discussions[r["carName"] + str(count)] = r["carParticipants"]
+
     return flask.redirect("/ui")
 
 @app.route('/cars')
 def cars():
-    global carsObj
-    return encoder.encode(carsObj)
+    global discussions
+
+    return encoder.encode(discussions)
 
 @app.route('/solve')
 def solve():
-    global carsObj
-    return str(
+    global discussions
+    return (
         graphColor(
-            createConflictGraph(carsObj)
+            createConflictGraph(discussions)
         )
     )
 

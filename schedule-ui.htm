@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<head>
+
+  <title>Schedule</title>
+
+  <meta charset="UTF-8" />
+
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      thead {
+        background-color: #1c87c9;
+        color: #ffffff;
+      }
+      th {
+        text-align: center;
+        height: 50px;
+      }
+      tbody tr:nth-child(odd) {
+        background: #ffffff;
+      }
+      tbody tr:nth-child(even) {
+        background: #f4f4f4;
+      }
+    </style>
+
+</head>
+
+<body>
+
+  <div 
+    x-data="{
+              'isLoading': true,
+              'schedule': [[]], 
+              'width': 0
+            }"
+    x-init="
+            fetch('./solve')
+                .then(r => r.json())
+                .then(t => {
+                    if (t.length == 0) {
+                      t = [[]];
+                    }
+                    width = Math.max(...t.map((e) => {
+                      return e.length
+                    }));
+                    for (v of t) {
+                      tc = width - v.length
+                      for (i = 0; i < tc; i = i + 1) {
+                        v.push('None');
+                      }
+                    }
+                    schedule = t;
+                    isLoading = false;
+                })
+    ">
+      <table x-show="!isLoading">
+        <tr>
+          <template x-for="i in width">
+            <th x-text="i"></th>
+          </template>
+        </tr>
+
+        <template x-for="arr in schedule">
+          <tr>
+            <template x-for="discussion in arr">
+              <td x-text="discussion"></td>
+            </template>
+          </tr>
+        </template>
+    </table>
+  </div>
+</body>
+
+</html>
